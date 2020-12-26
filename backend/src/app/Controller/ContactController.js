@@ -20,16 +20,59 @@ class ContactController {
         response.json(contact);
     }
 
-    store(request,response){
-        //Salvar um registro
+    async store(request,response){
+        const {name,  phone, email, sex, age, category_id} = request.body;
+        const contactExists = await ContactRepository.findByEmail(email);
+
+        if(!name){
+          return response.status(400).json({message: "Name is required!"})
+        }
+
+        if(contactExists){
+          return response.status(400).json({message: "Email already exists!"})
+        }
+
+        const contact = await ContactRepository.create({
+          name,  phone, email, sex, age, category_id
+        });
+
+        response.status(200).json(contact)
     }
 
-    update(request,response){
-        //Atualizar
+    async update(request,response){
+       const {id} = request.params;
+       const {name,  phone, email, sex, age, category_id} = request.body;
+
+       const contactExists = await ContactRepository.findById(id);
+       console.log(contactExists)
+       if(!contactExists){
+         return response.status(404).json({message: "Contact not found"})
+       }
+
+       if(!name){
+        return response.status(400).json({message: "Name is required!"})
+       }
+
+       const contactExistsEmail = await ContactRepository.findByEmail(email);
+
+       if(contactExistsEmail && contactExistsEmail.id != id){
+         return response.status(404).json({message: "This email is in use!"})
+       }
+
+       const contact = await ContactRepository.update(id,{name, phone, email, sex, age, category_id})
+       response.json(contact)
     }
 
-    delete(request,response){
+    async delete(request,response){
+      const {id} = request.params;
+      const contact = await ContactRepository.findById(id);
+      console.log(contact)
+      if(!contact){
+        return response.status(404).json({message:"Contact not found"})
+      }
 
+      await ContactRepository.delete(id);
+      response.sendStatus(204);
     }
 }
 
