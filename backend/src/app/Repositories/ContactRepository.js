@@ -1,4 +1,5 @@
-const {v4} = require('uuid')
+const {v4} = require('uuid');
+const db = require('../database');
 let contacts = [
   {
     id: v4(),
@@ -13,20 +14,19 @@ let contacts = [
 
 class ContactRepository {
 
-    findAll(){
-      return new Promise((resolve) => resolve(contacts));
+    async findAll(){
+      const rows = await db.Query('select * from contacts')
+      return rows;
     }
 
-    findById(id){
-      return new Promise((resolve) => resolve(
-        contacts.find((contact)=> contact.id == id)
-      ));
+    async findById(id){
+      const [row] = await db.Query(`select * from contacts where id = $1`,[id])
+      return row;
     }
 
-    findByEmail(email){
-      return new Promise((resolve) => resolve(
-        contacts.find((contact)=> contact.email == email)
-      ));
+    async findByEmail(email){
+      const [row] = await db.Query(`select * from contacts where email = $1`,[email])
+      return row;
     }
 
     delete(id){
@@ -38,20 +38,12 @@ class ContactRepository {
 
 
 
-    create({name,  phone, email, sex, age, category_id}){
-      return new Promise((resolve) => {
-        const newContact = {
-          id: v4(),
-          name: name,
-          phone: phone,
-          email: email,
-          sex: sex,
-          age: age,
-          category_id: category_id
-        }
-        contacts.push(newContact);
-        resolve(newContact);
-      });
+    async create({name,  phone, email, sex, age, category_id}){
+      const [rows] = await db.Query(`INSERT INTO CONTACTS(name,phone,email,sex,age,category_id)
+      VALUES ($1,$2,$3,$4,$5,$6)
+      RETURNING *
+      `,[name,phone,email,sex,age,category_id]);
+      return rows;
     }
 
     update(id, { name,  phone, email, sex, age, category_id}){
