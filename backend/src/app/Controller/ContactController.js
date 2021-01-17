@@ -4,7 +4,8 @@ class ContactController {
 
     async index(request,response){
         //Listar todos os registros
-        const users = await ContactRepository.findAll();
+        const {orderBy} = request.query;
+        const users = await ContactRepository.findAll(orderBy);
         response.status(200).json(users);
     }
 
@@ -44,7 +45,6 @@ class ContactController {
        const {name,  phone, email, sex, age, category_id} = request.body;
 
        const contactExists = await ContactRepository.findById(id);
-       console.log(contactExists)
        if(!contactExists){
          return response.status(404).json({message: "Contact not found"})
        }
