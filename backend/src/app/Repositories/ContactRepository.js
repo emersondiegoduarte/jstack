@@ -12,6 +12,7 @@ let contacts = [
   }
 ];
 
+
 class ContactRepository {
 
     async findAll(orderBy = 'ASC'){
