@@ -1,4 +1,3 @@
-const { findById } = require("../Repositories/ContactRepository");
 const ContactRepository = require("../Repositories/ContactRepository");
 class ContactController {
 
@@ -54,7 +53,7 @@ class ContactController {
        }
 
        const contactExistsEmail = await ContactRepository.findByEmail(email);
-
+       console.log(contactExistsEmail)
        if(contactExistsEmail && contactExistsEmail.id != id){
          return response.status(404).json({message: "This email is in use!"})
        }
@@ -65,12 +64,6 @@ class ContactController {
 
     async delete(request,response){
       const {id} = request.params;
-      const contact = await ContactRepository.findById(id);
-      console.log(contact)
-      if(!contact){
-        return response.status(404).json({message:"Contact not found"})
-      }
-
       await ContactRepository.delete(id);
       response.sendStatus(204);
     }
